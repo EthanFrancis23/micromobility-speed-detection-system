@@ -9,10 +9,12 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Radar / UART settings
-SERIAL_PORT = "/dev/serial0"
+# Radar / USB settings
+SERIAL_PORT = "/dev/ttyUSB0"
 BAUD_RATE = 38400
 SERIAL_TIMEOUT = 1.0
+RADAR_POLL_INTERVAL_SECONDS = 0.3    # radar polling
+
 
 # LDC Settings
 LCD_I2C_ADDRESS = 0x27
@@ -24,6 +26,9 @@ SPEED_THRESHOLD_MPH = 15
 MIN_VALID_SPEED_MPH = 3
 CAPTURE_COOLDOWN_SECONDS = 5
 WARNING_DISPLAY_SECONDS = 2
+
+# Speed conversions - update later when confirm exact S04/Sample rate setting and conversion
+BIN_TO_MPH_FACTOR = 0.14
 
 # Storage paths
 DATA_DIR = BASE_DIR / "data"
