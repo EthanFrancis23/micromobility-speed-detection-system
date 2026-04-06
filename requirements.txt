@@ -1,0 +1,8 @@
+numpy
+opencv-python
+pyserial
+RPLCD
+smbus2
+picamera2
+RPi.GPIO
+lgpio
