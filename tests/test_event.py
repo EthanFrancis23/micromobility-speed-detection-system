@@ -12,6 +12,8 @@ def main():
     events = [
         SpeedEvent(1, datetime.now(), 12.4, 15.0, None, "Test A"),
         SpeedEvent(2, datetime.now(), 18.7, 15.0, "img2.jpg", "Test B"),
+        SpeedEvent(3, datetime.now(), 16.2, 20.0, None, "Test C"),
+        SpeedEvent(4, datetime.now(), 22.5, 20.0, "img4.jpg", "Test D"),
     ]
 
     for event in events:

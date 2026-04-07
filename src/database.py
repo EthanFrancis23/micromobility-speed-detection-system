@@ -79,3 +79,80 @@ def get_all_events(db_path: Path = DEFAULT_DB_PATH) -> list[SpeedEvent]:
             )
         )
     return events
+
+def get_events_above_threshold(db_path=DEFAULT_DB_PATH) -> list[SpeedEvent]:
+    with get_connection(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT id, timestamp, speed_mph, threshold_value, image_path, location
+            FROM events
+            WHERE speed_mph >= threshold_value
+            ORDER BY id
+            """
+        )
+        rows = cursor.fetchall()
+
+    return [
+        SpeedEvent(
+            id=row[0],
+            timestamp=datetime.fromisoformat(row[1]),
+            speed_mph=row[2],
+            threshold_value=row[3],
+            image_path=row[4],
+            location=row[5],
+        )
+        for row in rows
+    ]
+
+def get_events_above_speed(min_speed: float, db_path=DEFAULT_DB_PATH) -> list[SpeedEvent]:
+    with get_connection(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT id, timestamp, speed_mph, threshold_value, image_path, location
+            FROM events
+            WHERE speed_mph >= ?
+            ORDER BY id
+            """,
+            (min_speed,),
+        )
+        rows = cursor.fetchall()
+
+    return [
+        SpeedEvent(
+            id=row[0],
+            timestamp=datetime.fromisoformat(row[1]),
+            speed_mph=row[2],
+            threshold_value=row[3],
+            image_path=row[4],
+            location=row[5],
+        )
+        for row in rows
+    ]
+
+def get_events_by_location(location: str, db_path=DEFAULT_DB_PATH) -> list[SpeedEvent]:
+    with get_connection(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT id, timestamp, speed_mph, threshold_value, image_path, location
+            FROM EVENTS
+            WHERE location = ?
+            ORDER BY id
+            """,
+            (location,),
+        )
+        rows = cursor.fetchall()
+
+    return [
+        SpeedEvent(
+            id=row[0],
+            timestamp=datetime.fromisoformat(row[1]),
+            speed_mph=row[2],
+            threshold_value=row[3],
+            image_path=row[4],
+            location=row[5],
+        )
+        for row in rows
+    ]
