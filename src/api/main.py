@@ -1,7 +1,7 @@
 from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src.api.routes.events import router as events_router
+from src.database import create_table
 
 from src.database import (
     get_all_events,
@@ -20,10 +20,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(events_router)
-
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-DB_PATH = BASE_DIR / "tests" / "test_events.db"
+DB_PATH = BASE_DIR / "data" / "events.db"
+
+create_table(DB_PATH)
 
 def serialize_event(event):
     return {
@@ -35,14 +35,17 @@ def serialize_event(event):
         "location": event.location,
     }
 
+
 @app.get("/")
 def root():
     return {"message": "Micromobility Speed Detection System API is running"}
+
 
 @app.get("/events")
 def read_all_events():
     events = get_all_events(DB_PATH)
     return [serialize_event(event) for event in events]
+
 
 @app.get("/events/violations")
 def read_violations():
@@ -51,7 +54,7 @@ def read_violations():
 
 
 @app.get("/events/speed/{min_speed}")
-def read_events_above_speed(min_speed:float):
+def read_events_above_speed(min_speed: float):
     events = get_events_above_speed(min_speed, DB_PATH)
     return [serialize_event(event) for event in events]
 
