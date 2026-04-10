@@ -4,13 +4,13 @@ const EVENTS_ENDPOINT = "/events";
 document.addEventListener("DOMContentLoaded", () => {
     loadEvents();
 
-    const refreshButton = document.querySelector(".btn.btn-primary");
+    const refreshButton = document.querySelector("#refreshButton");
     if (refreshButton) {
         refreshButton.addEventListener("click", loadEvents);
     }
 });
 
-// Loading events
+// Load events from API
 async function loadEvents() {
     try {
         showLoadingState();
@@ -31,10 +31,14 @@ async function loadEvents() {
     }
 }
 
-// Updating summary cards
+// Update summary cards
 function updateSummaryCards(events) {
     const totalEvents = events.length;
-    const violations = events.filter(event => event.speed_mph > event.threshold_value).length;
+
+    const violations = events.filter(event => 
+        event.speed_mph > event.threshold_value
+    ).length;
+
     const avgSpeed = totalEvents > 0
         ? (events.reduce((sum, event) => sum + event.speed_mph, 0) / totalEvents).toFixed(1)
         : "0.0";
@@ -53,22 +57,20 @@ function updateSummaryCards(events) {
     }
 }
 
-
-// Render table rows
+// Render table
 function renderEventsTable(events) {
     const tableBody = document.querySelector("#eventsTableBody");
 
-    if (!tableBody) {
-        console.warn("No table body with id 'eventsTableBody' found.");
-        return;
-    }
+    if (!tableBody) return;
 
     tableBody.innerHTML = "";
 
     if (events.length === 0) {
         tableBody.innerHTML = `
             <tr>
-                <td colspan="7" class="text-center text-muted"> No events found. </td>
+                <td colspan="7" class="text-center text-muted">
+                    No events found.
+                </td>
             </tr>
         `;
         return;
@@ -101,37 +103,37 @@ function renderEventsTable(events) {
     });
 }
 
-// Formatting timestamp 
+// Format timestamp
 function formatDateTime(timestamp) {
     const date = new Date(timestamp);
-
-    if (isNaN(date.getTime())) {
-        return timestamp;
-    }
-
-    return date.toLocaleString();
+    return isNaN(date.getTime()) ? timestamp : date.toLocaleString();
 }
 
-// Loading and error states
+// Loading state
 function showLoadingState() {
     const tableBody = document.querySelector("#eventsTableBody");
 
     if (tableBody) {
         tableBody.innerHTML = `
             <tr>
-                <td colspan="7" class="text-center text-muted">Loading events...</td>
+                <td colspan="7" class="text-center text-muted">
+                    Loading events...
+                </td>
             </tr>
         `;
     }
 }
 
+// Error state
 function showErrorState(message) {
     const tableBody = document.querySelector("#eventsTableBody");
 
     if (tableBody) {
         tableBody.innerHTML = `
             <tr>
-                <td colspan="7" class="text-center text-danger">${message}</td>
+                <td colspan="7" class="text-center text-danger">
+                    ${message}
+                </td>
             </tr>
         `;
     }
