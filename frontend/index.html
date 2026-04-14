@@ -3,96 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Micromobility Speed Dashboard</title>
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Micromobility Speed Dashboard — City of Coral Gables</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-
-<div class="container mt-4">
-
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="mb-1">Speed Detection Dashboard</h1>
-            <p class="text-muted mb-0">Viewing stored speed events</p>
+ 
+<!-- Header -->
+<header class="site-header">
+    <div class="header-inner">
+        <div class="header-brand">
+            <div class="brand-seal">
+                <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="20" cy="20" r="19" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M20 8 L23 16 L32 16 L25 21 L28 30 L20 25 L12 30 L15 21 L8 16 L17 16 Z" fill="currentColor" opacity="0.7"/>
+                </svg>
+            </div>
+            <div>
+                <span class="brand-city">City of Coral Gables</span>
+                <span class="brand-dept">Micromobility Enforcement</span>
+            </div>
         </div>
-        <button id="refreshButton" class="btn btn-primary">Refresh</button>
+        <div class="header-actions">
+            <span class="live-indicator"><span class="pulse-dot"></span>Live</span>
+            <button id="refreshButton" class="btn-refresh">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                Refresh
+            </button>
+        </div>
     </div>
-
+</header>
+ 
+<!-- Page Title Bar -->
+<div class="title-bar">
+    <div class="title-bar-inner">
+        <h1 class="page-title">Speed Detection Dashboard</h1>
+        <p class="page-subtitle">Viewing stored speed events</p>
+    </div>
+</div>
+ 
+<main class="main-content">
+ 
     <!-- Summary Cards -->
-    <div class="row g-3 mb-4">
-
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h6 class="text-muted">Total Events</h6>
-                    <h3 class="summary-value">0</h3>
-                </div> 
+    <section class="summary-grid">
+ 
+        <div class="stat-card">
+            <div class="stat-icon stat-icon--total">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="stat-body">
+                <span class="stat-label">Total Events</span>
+                <span class="stat-value summary-value" data-index="0">—</span>
             </div>
         </div>
-
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h6 class="text-muted">Violations</h6>
-                    <h3 class="summary-value">0</h3>
-                </div>
+ 
+        <div class="stat-card stat-card--alert">
+            <div class="stat-icon stat-icon--violations">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="stat-body">
+                <span class="stat-label">Violations</span>
+                <span class="stat-value summary-value" data-index="1">—</span>
             </div>
         </div>
-
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h6 class="text-muted">Average Speed</h6>
-                    <h3 class="summary-value">0 mph</h3>
-                </div>
+ 
+        <div class="stat-card">
+            <div class="stat-icon stat-icon--avg">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div class="stat-body">
+                <span class="stat-label">Average Speed</span>
+                <span class="stat-value summary-value" data-index="2">— mph</span>
             </div>
         </div>
-
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h6 class="text-muted">Highest Speed</h6>
-                    <h3 class="summary-value">0 mph</h3>
-                </div>
+ 
+        <div class="stat-card">
+            <div class="stat-icon stat-icon--max">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            </div>
+            <div class="stat-body">
+                <span class="stat-label">Highest Speed</span>
+                <span class="stat-value summary-value" data-index="3">— mph</span>
             </div>
         </div>
-
-    </div>
-
+ 
+    </section>
+ 
     <!-- Filters -->
-    <div class="card mb-4">
-        <div class="card-body">
-
-            <div class="row g-3">
-
-                <div class="col-md-4">
-                    <label class="form-label">Location</label>
-                    <input type="text" class="form-control" placeholder="Test B">
+    <section class="filter-panel">
+        <div class="filter-panel-inner">
+            <span class="filter-label">Filter Events</span>
+            <div class="filter-fields">
+                <div class="field-group">
+                    <label class="field-label" for="filterLocation">Location</label>
+                    <input type="text" id="filterLocation" class="field-input" placeholder="e.g. Miracle Mile">
                 </div>
-
-                <div class="col-md-4">
-                    <label class="form-label">Minimum Speed</label>
-                    <input type="number" class="form-control" placeholder="15">
+                <div class="field-group">
+                    <label class="field-label" for="filterMinSpeed">Min Speed (mph)</label>
+                    <input type="number" id="filterMinSpeed" class="field-input" placeholder="e.g. 15">
                 </div>
-
-                <div class="col-md-4 d-flex align-items-end">
-                    <button class="btn btn-primary me-2">Apply</button>
-                    <button class="btn btn-outline-secondary">Clear</button>
+                <div class="filter-actions">
+                    <button id="applyFilter" class="btn-apply">Apply</button>
+                    <button id="clearFilter" class="btn-clear">Clear</button>
                 </div>
-
             </div>
-
         </div>
-    </div>
-
-    <!-- Event Table -->
-    <div class="card">
-        <div class="card-body">
-
-            <table class="table table-striped">
+    </section>
+ 
+    <!-- Events Table -->
+    <section class="events-section">
+        <div class="events-header">
+            <h2 class="events-title">Speed Events</h2>
+            <span class="events-count" id="eventsCount"></span>
+        </div>
+        <div class="table-wrapper">
+            <table class="events-table">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -100,22 +127,58 @@
                         <th>Speed</th>
                         <th>Threshold</th>
                         <th>Location</th>
-                        <th>Image</th>
+                        <th>Frames</th>
                         <th>Status</th>
                     </tr>
                 </thead>
                 <tbody id="eventsTableBody">
-                    <!-- JS inserts rows here -->
+                    <tr class="loading-row">
+                        <td colspan="7">
+                            <div class="loading-indicator">
+                                <div class="loading-spinner"></div>
+                                <span>Loading events…</span>
+                            </div>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
-
+        </div>
+    </section>
+ 
+</main>
+ 
+<!-- Gallery Modal -->
+<div id="galleryModal" class="gallery-modal" role="dialog" aria-modal="true" aria-label="Image gallery">
+    <div class="gallery-backdrop" id="galleryBackdrop"></div>
+    <div class="gallery-container">
+        <button class="gallery-close" id="galleryClose" aria-label="Close gallery">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+ 
+        <div class="gallery-header">
+            <span class="gallery-event-label" id="galleryEventLabel"></span>
+            <span class="gallery-counter" id="galleryCounter"></span>
+        </div>
+ 
+        <div class="gallery-main">
+            <button class="gallery-nav gallery-nav--prev" id="galleryPrev" aria-label="Previous frame">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <div class="gallery-image-wrap">
+                <img id="galleryMainImage" src="" alt="Frame" class="gallery-main-img">
+            </div>
+            <button class="gallery-nav gallery-nav--next" id="galleryNext" aria-label="Next frame">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+        </div>
+ 
+        <div class="gallery-filmstrip-wrap">
+            <div class="gallery-filmstrip" id="galleryFilmstrip"></div>
         </div>
     </div>
-
 </div>
-
-<!-- Link your JS -->
+ 
 <script src="/script.js"></script>
-
 </body>
 </html>
+ 
