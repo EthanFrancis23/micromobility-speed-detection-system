@@ -7,7 +7,7 @@ Stores settings for radar UART connection, LCD display, camera settings, thresho
 
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Radar / USB settings
 SERIAL_PORT = "/dev/ttyUSB0"
@@ -22,8 +22,8 @@ LCD_COLS = 16
 LCD_ROWS = 2
 
 # Speed threshold settings
-SPEED_THRESHOLD_MPH = 3
-MIN_VALID_SPEED_MPH = 1.5
+SPEED_THRESHOLD_MPH = 0.8
+MIN_VALID_SPEED_MPH = 0.4
 CAPTURE_COOLDOWN_SECONDS = 1.0
 WARNING_DISPLAY_SECONDS = 1.5
 DEFAULT_LOCATION = "Miracle Mile, Coral Gables"

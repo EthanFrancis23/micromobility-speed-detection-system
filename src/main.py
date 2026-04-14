@@ -1,8 +1,6 @@
 """
-
-Entry point for application. 
-Starts the radar, LCD, and camera services. Then runs the main monitoring loop. 
-
+Entry point for application.
+Starts the radar, LCD, and camera services. Then runs the main monitoring loop.
 """
 import time
 
@@ -31,6 +29,11 @@ def main() -> None:
     )
 
     last_capture_time = 0.0
+
+    # NEW: state tracking for deduping
+    violation_active = False
+    last_violation_seen_time = 0.0
+    violation_reset_seconds = 1.0  # time required to "reset" detection
 
     try:
         lcd.show_startup()
@@ -72,14 +75,24 @@ def main() -> None:
                 f"raw={reading.raw_response} | "
             )
 
+            now = time.time()
+
+            # --- NO TARGET / LOW SPEED ---
             if not reading.detected or reading.speed_mph < MIN_VALID_SPEED_MPH:
                 lcd.show_no_target()
 
+                # reset violation state if enough time has passed
+                if now - last_violation_seen_time >= violation_reset_seconds:
+                    violation_active = False
+
+            # --- THRESHOLD VIOLATION ---
             elif reading.speed_mph >= SPEED_THRESHOLD_MPH:
                 lcd.show_warning(reading.speed_mph)
 
-                now = time.time()
-                if now - last_capture_time >= CAPTURE_COOLDOWN_SECONDS:
+                last_violation_seen_time = now
+
+                # only trigger ONCE per pass
+                if not violation_active and (now - last_capture_time >= CAPTURE_COOLDOWN_SECONDS):
                     image_path = None
 
                     try:
@@ -97,19 +110,28 @@ def main() -> None:
                             speed_mph=reading.speed_mph,
                             image_path=image_path,
                         )
+
                         last_capture_time = now
+                        violation_active = True  # lock until reset
+
                         print(
                             f"Violation event saved: "
                             f"{event.speed_mph:.2f} mph | "
                             f"{event.location} | "
                             f"{event.image_path}"
                         )
+
                     except Exception as db_exc:
                         print(f"Failed to save event: {db_exc}")
                         lcd.show_error("DB save failed")
 
+            # --- NORMAL SPEED ---
             else:
                 lcd.show_speed(reading.speed_mph, reading.direction)
+
+                # reset if object is gone long enough
+                if now - last_violation_seen_time >= violation_reset_seconds:
+                    violation_active = False
 
             time.sleep(RADAR_POLL_INTERVAL_SECONDS)
 
