@@ -9,11 +9,11 @@ from __future__ import annotations
 
 import serial
 
-from src.config.settings import SERIAL_PORT,BAUD_RATE, SERIAL_TIMEOUT
+from src.config.settings import SERIAL_PORT, BAUD_RATE, SERIAL_TIMEOUT
 from src.radar.parser import RadarReading, parse_c00_response
 
 class RadarSensor:
-    def __init__(self):
+    def __init__(self) -> None:
         self.serial_port = SERIAL_PORT
         self.baud_rate = BAUD_RATE
         self.timeout = SERIAL_TIMEOUT
@@ -31,7 +31,7 @@ class RadarSensor:
         if self.connection and self.connection.is_open:
             self.connection.close()
 
-    def is_connected(self) -> None:
+    def is_connected(self) -> bool:
         return self.connection is not None and self.connection.is_open
 
     def read_line(self) -> bytes:
@@ -41,8 +41,8 @@ class RadarSensor:
     
     def read_bytes(self, size: int = 128) -> bytes:
         if not self.is_connected():
-            raise RuntimeError("Radial serial connection is not open.")
-        return self.connection.readline()
+            raise RuntimeError("Radar serial connection is not open.")
+        return self.connection.read(size)
         
     def write_bytes(self, data: bytes) -> None:
         if not self.is_connected():

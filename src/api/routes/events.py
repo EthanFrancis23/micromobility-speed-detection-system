@@ -14,7 +14,7 @@ router = APIRouter()
 def to_event_schema(event: SpeedEvent) -> Event:
     return Event(
         id=event.id,
-        timestamp=event.timestamp.isoformat(),
+        timestamp=event.timestamp.isoformat() if event.timestamp else "",
         speed_mph=event.speed_mph,
         threshold_value=event.threshold_value,
         image_paths=event.image_paths,

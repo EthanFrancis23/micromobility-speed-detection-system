@@ -1,20 +1,18 @@
 # Raspberry Pi Speed Radar Monitoring System
 
-A real-time speed detection system using a Raspberry Pi and the Speed Radar Click (MIKROE-5869) sensor. This project captures speed data, detects threshold violations, and integrates with a camera and display for monitoring and future dashboard analytics.
+A real-time speed detection system for Raspberry Pi using the Speed Radar Click (MIKROE-5869), Pi camera, and I2C LCD. The system reads radar data, converts it into speed readings, captures burst images for threshold violations, stores events in SQLite, and serves a dashboard/API with FastAPI.
 
 ---
 
-## Project Overview
+## Features
 
-This system is designed to:
-
-- Detect object speed using a radar sensor
-- Determine direction (approaching or receding)
-- Capture images when speed exceeds a threshold
-- Display results on an I2C LCD
-- Store events for future dashboard visualization
-
-The long-term goal is to deploy this as a sidewalk micromobility monitoring system.
+- Read radar target packets over serial (`/dev/ttyUSB0`)
+- Parse detection state, direction, speed bin, and magnitude
+- Convert speed bins to mph using configurable factor
+- Show live status/speed/alerts on 16x2 I2C LCD
+- Capture burst image frames when speed threshold is exceeded
+- Store violation events with image paths in SQLite
+- View events and image galleries in a browser dashboard
 
 ---
 
@@ -22,234 +20,138 @@ The long-term goal is to deploy this as a sidewalk micromobility monitoring syst
 
 - Raspberry Pi 5
 - Speed Radar Click (MIKROE-5869)
-- USB-C connection (sensor to Pi)
-- I2C LCD 1602 display (PCF8574, address 0x27)
-- Camera module (CSI or USB)
-- Power supply
+- I2C LCD 1602 (PCF8574, default address `0x27`)
+- Raspberry Pi camera (Picamera2/libcamera compatible)
+- USB serial connection for radar (`/dev/ttyUSB0`)
+
+> Note: hardware assumptions (serial port, I2C address, thresholds) are currently defined in `src/config/settings.py`.
 
 ---
 
-## How It Works
+## Repository Structure
 
-1. Radar sensor sends serial data via /dev/ttyUSB0
-2. Python reads and parses radar output
-3. System determines:
-   - Speed (mph)
-   - Direction
-   - Detection status
-4. If speed exceeds threshold:
-   - Capture image
-   - Store event
-5. Display speed and status on LCD
-
----
-
-## Project Structure
-
-Speed-Radar-Click-Sensor-Implementation/
-
-├── src/  
-│   ├── main.py            # Entry point  
-│   ├── radar.py           # Radar sensor interface  
-│   ├── parser.py          # Parses raw radar data  
-│   ├── camera.py          # Image capture logic  
-│   ├── display.py         # LCD output  
-│   └── models.py          # SpeedEvent model  
-
-├── tests/  
-│   └── test_radar.py      # Radar testing script  
-
-├── images/                # Captured images  
-├── data/                  # Stored event data (future DB)  
-├── requirements.txt       # Raspberry Pi runtime dependencies  
-├── requirements-dev.txt   # Windows development dependencies  
-└── README.md  
+```text
+micromobility-speed-detection-system/
+├── frontend/
+│   ├── index.html
+│   ├── script.js
+│   └── style.css
+├── src/
+│   ├── main.py                      # Sensor loop entrypoint
+│   ├── database.py                  # SQLite access helpers
+│   ├── config/settings.py           # Runtime settings/constants
+│   ├── radar/
+│   │   ├── radar.py                 # Serial radar interface
+│   │   └── parser.py                # C00 parser + conversion
+│   ├── camera/capture.py            # Picamera2 capture helpers
+│   ├── display/lcd_display.py       # LCD output wrapper
+│   ├── logic/violation_handler.py   # Event creation/persistence
+│   └── api/
+│       ├── main.py                  # FastAPI app
+│       ├── routes/events.py         # /events endpoint
+│       └── schemas/event.py         # API response schema
+├── tests/
+├── requirements.txt
+└── README.md
+```
 
 ---
 
 ## Installation
 
-Clone the repository:
+### 1) Clone repository
 
-git clone <your-repo-url>  
-cd Speed-Radar-Click-Sensor-Implementation  
+```bash
+git clone <your-repo-url>
+cd micromobility-speed-detection-system
+```
+
+### 2) Create and activate virtual environment
+
+Linux/macOS (including Raspberry Pi OS):
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### 3) Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
 
 ---
 
-## Environment Setup
+## Configuration
 
-Raspberry Pi (Production Environment):
+Runtime configuration lives in `src/config/settings.py`:
 
-python3 -m venv .venv  
-source .venv/bin/activate  
-pip install -r requirements.txt  
-
-Windows (Development Environment):
-
-python -m venv .venv  
-.\.venv\Scripts\Activate  
-python -m pip install -r requirements-dev.txt  
+- radar serial settings (`SERIAL_PORT`, `BAUD_RATE`, `SERIAL_TIMEOUT`)
+- LCD settings (`LCD_I2C_ADDRESS`, `LCD_COLS`, `LCD_ROWS`)
+- threshold/cooldown settings
+- storage paths (`data/events.db`, `data/captures`)
 
 ---
 
 ## Running the Project
 
-python -m src.main  
+### A) Hardware monitoring loop (radar + LCD + camera)
 
-Expected output:
+```bash
+python -m src.main
+```
 
-Detected: True  
-Direction: Approaching  
-Speed: 12.5 mph  
-Magnitude: -34 dB  
+### B) API + dashboard (FastAPI)
 
----
+```bash
+uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
+```
 
-## Speed Event Model
+Then open:
 
-SpeedEvent {  
-    id: int  
-    timestamp: datetime  
-    speed_mph: float  
-    threshold_value: float  
-    image_path: string  
-    location: string  
-}  
-
-Notes:
-- Only threshold violations should generate full events with images  
-- Normal detections can be logged optionally without images  
+- Dashboard UI: `http://<pi-ip>:8000/`
+- Events API: `http://<pi-ip>:8000/events`
 
 ---
 
-## Camera Integration
+## Data Model
 
-Captures image when:
+Stored event fields:
 
-speed_mph >= threshold_value  
-
-Images are saved to:
-
-/images/<timestamp>.jpg  
-
----
-
-## LCD Output
-
-Displays:
-- Current speed  
-- Detection status  
-
-Future improvements:
-- Alert message when threshold exceeded  
-- Direction indicator  
+- `id`
+- `timestamp`
+- `speed_mph`
+- `threshold_value`
+- `image_paths` (list of relative capture paths)
+- `location`
 
 ---
 
 ## Testing
 
-Run radar test:
+Run tests with:
 
-python src/test_radar.py  
+```bash
+pytest -q
+```
 
-Expected:
-- Raw sensor responses  
-- Parsed values (speed, direction, magnitude)  
-
----
-
-## Sensor Communication
-
-The radar communicates using serial commands such as:
-
-- F01, F00  
-- R00, R01, R02  
-- C00  
-
-Parsed output includes:
-- Detection (True or False)  
-- Speed bin converted to MPH  
-- Direction  
-- Signal strength  
-
-References:
-https://libstock.mikroe.com/projects/view/5409/speed-radar-click  
-https://www.mikroe.com/speed-radar-click  
+Current tests include parser/database/integration scaffolding and utility scripts under `tests/`.
 
 ---
 
-## Dependency Management
+## Sensor Commands
 
-This project uses two dependency files to support different environments:
+The radar interface uses commands such as:
 
-requirements.txt (Raspberry Pi):
-Contains full runtime dependencies, including hardware-specific libraries such as:
-- picamera2  
-- RPi.GPIO  
-- lgpio  
-
-These packages are required for deployment but are not compatible with Windows.
-
-requirements-dev.txt (Windows):
-Contains development-safe dependencies such as:
-- pyserial  
-- smbus2  
-- RPLCD  
-- numpy  
-- opencv-python  
-
-This allows development and testing without requiring Raspberry Pi hardware.
+- `$F01` (device type)
+- `$F00` (firmware)
+- `$C00` (target data)
 
 ---
 
-## Roadmap
+## Notes and Limitations
 
-Phase 1: Event System  
-- Define SpeedEvent schema  
-- Store mock events  
-- Add database (SQLite or PostgreSQL)  
-
-Phase 2: Detection Logic  
-- Real-time radar parsing  
-- Speed calculation  
-- Improve detection reliability  
-
-Phase 3: Camera Integration  
-- Capture on threshold  
-- Fix orientation issues  
-- Optimize capture timing  
-
-Phase 4: Dashboard  
-- Backend API (FastAPI)  
-- Event storage and retrieval  
-- Image viewer UI  
-
-Phase 5: Deployment  
-- Weatherproof enclosure  
-- Power system design  
-- Multi-sensor network  
-
----
-
-## Known Issues
-
-- Camera images may appear upside down  
-- Occasional "no data received" from radar  
-- LCD refresh timing could be improved  
-- Detection latency for fast-moving objects  
-
----
-
-## Future Improvements
-
-- Multi-location support  
-- Real-time web dashboard  
-- Cloud storage integration  
-- Speed violation alerts (LED or buzzer)  
-- AI-based object classification  
-
----
-
-## Author
-
-Built as part of a smart city initiative and ongoing IoT development work.
+- Speed conversion factor (`BIN_TO_MPH_FACTOR`) is currently provisional and should be calibrated per deployment.
+- Camera and LCD libraries require compatible Raspberry Pi hardware/runtime.
+- Captured images are served by the API from `/captures`.

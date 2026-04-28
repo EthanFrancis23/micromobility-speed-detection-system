@@ -10,8 +10,8 @@ def main():
     create_table(TEST_DB)
 
     events = [
-        SpeedEvent(1, datetime.now(), 12.4, 15.0, None, "Test A"),
-        SpeedEvent(2, datetime.now(), 18.7, 15.0, "img2.jpg", "Test B"),
+        SpeedEvent(1, datetime.now(), 12.4, 15.0, [], "Test A"),
+        SpeedEvent(2, datetime.now(), 18.7, 15.0, ["img2.jpg"], "Test B"),
     ]
 
     for event in events:
