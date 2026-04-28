@@ -42,7 +42,7 @@ class LCDDisplay:
         self.write_lines(f"Speed {speed_mph:.1f}", short_dir)
 
     def show_warning(self, speed_mph: float) -> None:
-        self.write_lines(f"Speed {speed_mph}:.1f", " SLOW DOWN!")
+        self.write_lines(f"Speed {speed_mph:.1f}", "SLOW DOWN!")
 
     def show_no_target(self) -> None:
         self.write_lines("No Target", "Monitoring...")

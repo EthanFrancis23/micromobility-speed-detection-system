@@ -1,8 +1,13 @@
 from src.database import create_table
-from src.violation_handler import handle_speed_violation
+from src.logic.violation_handler import ViolationHandler
 
-create_table()
 
-event = handle_speed_violation(18.7, location="Bench Test")
+def main() -> None:
+    create_table()
+    handler = ViolationHandler(threshold_mph=15.0, location="Bench Test")
+    event = handler.save_event(18.7, image_paths=[])
+    print(event)
 
-print(event)
+
+if __name__ == "__main__":
+    main()
